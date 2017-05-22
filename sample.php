@@ -2,71 +2,37 @@
 
 require('./include.php');
 
-use qcloudcos\Cosapi;
+use qcloudcos\CosClient;
 
-$bucket = 'testbucket';
-$src = './111.txt';
-$dst = '/testfolder/111.txt';
-$folder = '/testfolder';
-
-Cosapi::setTimeout(180);
+$appId = '';
+$secretId = '';
+$secretKey = '';
 
 // 设置COS所在的区域，对应关系如下：
 //     华南  -> gz
 //     华中  -> sh
 //     华北  -> tj
-Cosapi::setRegion('gz');
+$cosClient = new CosClient('sh', $appId, $secretId, $secretKey);
 
-// Create folder in bucket.
-$ret = Cosapi::createFolder($bucket, $folder);
+// Debugger can be enabled for debugging information.
+//$cosClient->enableDebugger();
+
+// Upload local file ./hello.txt to object hello.txt.
+$ret = $cosClient->uploadObject('testbucket', './hello.txt', 'hello.txt');
 var_dump($ret);
 
-// Upload file into bucket.
-$ret = Cosapi::upload($bucket, $src, $dst);
+// Create directory.
+$ret = $cosClient->createDirectory('testbucket', 'testdir');
 var_dump($ret);
 
-// List folder.
-$ret = Cosapi::listFolder($bucket, $folder);
+$ret = $cosClient->uploadObject('testbucket', './hello.txt', 'testdir/hello.txt');
 var_dump($ret);
 
-// Update folder information.
-$bizAttr = "";
-$ret = Cosapi::updateFolder($bucket, $folder, $bizAttr);
+$ret = $cosClient->listDirectory('testbucket', 'testdir');
 var_dump($ret);
 
-// Update file information.
-$bizAttr = '';
-$authority = 'eWPrivateRPublic';
-$customerHeaders = array(
-    'Cache-Control' => 'no',
-    'Content-Type' => 'application/pdf',
-    'Content-Language' => 'ch',
-);
-$ret = Cosapi::update($bucket, $dst, $bizAttr,$authority, $customerHeaders);
+$ret = $cosClient->deleteObject('testbucket', 'testdir/hello.txt');
 var_dump($ret);
 
-// Stat folder.
-$ret = Cosapi::statFolder($bucket, $folder);
-var_dump($ret);
-
-// Stat file.
-$ret = Cosapi::stat($bucket, $dst);
-var_dump($ret);
-
-// Copy file.
-$ret = Cosapi::copyFile($bucket, $dst, $dst . '_copy');
-var_dump($ret);
-
-// Move file.
-$ret = Cosapi::moveFile($bucket, $dst, $dst . '_move');
-var_dump($ret);
-
-// Delete file.
-$ret = Cosapi::delFile($bucket, $dst . '_copy');
-var_dump($ret);
-$ret = Cosapi::delFile($bucket, $dst . '_move');
-var_dump($ret);
-
-// Delete folder.
-$ret = Cosapi::delFolder($bucket, $folder);
+$ret = $cosClient->removeDirectory('testbucket', 'testdir');
 var_dump($ret);

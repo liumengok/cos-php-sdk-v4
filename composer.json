@@ -1,0 +1,9 @@
+{
+    "name": "qcloud/cos-php-sdk-v4",
+    "description": "php sdk for qcloud cos v4",
+    "homepage": "https://www.qcloud.com/product/cos",
+    "type": "library",
+    "require": {
+        "php":">=5.3"
+    }
+}

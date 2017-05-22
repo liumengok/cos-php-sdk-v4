@@ -35,12 +35,13 @@ class SliceUploading {
     private $accessUrl;            // string: access url.
     private $resourcePath;         // string: resource path.
     private $sourceUrl;            // string: source url.
+    private $verbose;              // boolean: output verbose log to stderr.
 
     /**
      * timeoutMs: max timeout in milliseconds for each http request.
      * maxRetryCount: max retry count for uploading each slice on error.
      */
-    public function __construct($timeoutMs, $maxRetryCount) {
+    public function __construct($timeoutMs, $maxRetryCount, $verbose) {
         $this->timeoutMs = $timeoutMs;
         $this->maxRetryCount = $maxRetryCount;
         $this->errorCode = COSAPI_SUCCESS;
@@ -49,7 +50,8 @@ class SliceUploading {
 
         $this->offset = 0;
 
-        $this->libcurlWrapper = new LibcurlWrapper();
+        $this->libcurlWrapper = new LibcurlWrapper($verbose);
+        $this->verbose = $verbose;
     }
 
     public function __destruct() {
@@ -83,7 +85,7 @@ class SliceUploading {
      * Return true on success and return false on failure.
      */
     public function initUploading(
-            $signature, $srcFpath, $url, $fileSize, $sliceSize, $bizAttr, $insertOnly) {
+            $signature, $srcFpath, $url, $fileSize, $sliceSize, $bizAttr, $overwrite) {
         $this->signature = $signature;
         $this->srcFpath = $srcFpath;
         $this->url = $url;
@@ -101,7 +103,7 @@ class SliceUploading {
                 'op' => 'upload_slice_init',
                 'filesize' => $fileSize,
                 'slice_size' => $sliceSize,
-                'insertOnly' => $insertOnly,
+                'insertOnly' => $overwrite ? 0 : 1,
             ),
             'header' => array(
                 'Authorization: ' . $signature,
@@ -207,7 +209,7 @@ class SliceUploading {
     }
 
     private function sendRequest($request) {
-        $response = HttpClient::sendRequest($request);
+        $response = HttpClient::sendRequest($request, $this->verbose);
         if ($response === false) {
             $this->setError(COSAPI_NETWORK_ERROR, 'network error');
             return false;

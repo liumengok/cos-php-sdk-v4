@@ -28,7 +28,7 @@ class HttpClient {
      *                   ssl_version: SSL版本号
      * @return string    http请求响应
      */
-    public static function sendRequest($request) {
+    public static function sendRequest($request, $verbose) {
         if (self::$curlHandler) {
             if (function_exists('curl_reset')) {
                 curl_reset(self::$curlHandler);
@@ -37,6 +37,10 @@ class HttpClient {
             }
         } else {
             self::$curlHandler = curl_init();
+        }
+
+        if ($verbose) {
+            curl_setopt(self::$curlHandler, CURLOPT_VERBOSE, true);
         }
 
         curl_setopt(self::$curlHandler, CURLOPT_URL, $request['url']);

@@ -25,11 +25,13 @@ class LibcurlWrapper {
     private $curlMultiHandle; // curl handle: curl multi handle.
     private $curlHandleInfo;  // array: array of active curl handle.
     private $idleCurlHandle;  // array: idle curl handle which can be reused.
+    private $verbose;         // boolean: output verbose log to stderr.
 
-    public function __construct() {
+    public function __construct($verbose) {
         $this->sequence = 0;
         $this->curlMultiHandle = curl_multi_init();
         $this->idleCurlHandle = array();
+        $this->verbose = $verbose;
     }
 
     public function __destruct() {
@@ -56,6 +58,9 @@ class LibcurlWrapper {
         curl_setopt($curlHandle, CURLOPT_URL, $httpRequest->url);
         curl_setopt($curlHandle, CURLOPT_HEADER, 1);
         curl_setopt($curlHandle, CURLOPT_RETURNTRANSFER, 1);
+        if ($this->verbose) {
+            curl_setopt($curlHandle, CURLOPT_VERBOSE, true);
+        }
         $headers = $httpRequest->customHeaders;
         array_push($headers, 'User-Agent:'.Conf::getUserAgent());
         if ($httpRequest->method === 'POST') {
