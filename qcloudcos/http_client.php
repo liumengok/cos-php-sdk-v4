@@ -2,6 +2,8 @@
 
 namespace qcloudcos;
 
+require_once(__DIR__ . DIRECTORY_SEPARATOR . 'libcurl_helper.php');
+
 function my_curl_reset($handler) {
     curl_setopt($handler, CURLOPT_URL, '');
     curl_setopt($handler, CURLOPT_HTTPHEADER, array());

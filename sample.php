@@ -1,6 +1,6 @@
 <?php
 
-require('./include.php');
+require('./autoload.php');
 
 use qcloudcos\CosClient;
 
